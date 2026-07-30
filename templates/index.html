@@ -1,0 +1,1335 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+        <title>SOC Sanitization App</title>
+        <style>
+            body {
+                font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+                background: #f4f6f8;
+                color: #222;
+            }
+            .container {
+                max-width: 900px;
+                margin: 40px auto;
+                background: #fff;
+                border-radius: 8px;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+                overflow: hidden;
+            }
+            header {
+                display: flex;
+                align-items: center;
+                padding: 20px 24px 12px 24px;
+            }
+            .brand-soc {
+                flex-shrink: 0;
+                margin-right: 16px;
+                font-size: 1.75rem;
+                font-weight: 700;
+                letter-spacing: 0.06em;
+                color: #f97316;
+            }
+            header h1 {
+                flex: 1;
+                font-size: 1.5rem;
+                color: #111;
+            }
+            nav {
+                display: flex;
+                border-bottom: 1px solid #e0e0e0;
+                background: #fff;
+            }
+            nav button {
+                flex: 1;
+                padding: 15px;
+                font-size: 1rem;
+                background: none;
+                border: none;
+                border-bottom: 3px solid transparent;
+                cursor: pointer;
+                transition: border-color 0.2s;
+                color: #222;
+            }
+            nav button.active {
+                border-bottom-color: #f97316;
+                color: #111;
+                font-weight: 600;
+                background: #fff;
+            }
+            .tab {
+                display: none;
+                padding: 24px;
+            }
+            .tab.active {
+                display: block;
+            }
+            h2 {
+                margin-bottom: 15px;
+                font-size: 1.25rem;
+            }
+            h3 {
+                margin: 20px 0 10px;
+                font-size: 1.05rem;
+            }
+            p,
+            ul {
+                margin-bottom: 15px;
+                line-height: 1.6;
+            }
+            ul {
+                margin-left: 20px;
+            }
+            input[type="file"],
+            input[type="text"],
+            textarea {
+                width: 100%;
+                padding: 10px;
+                margin-bottom: 10px;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+                font-size: 1rem;
+                background: #fafafa;
+                box-sizing: border-box;
+            }
+            textarea {
+                resize: vertical;
+                min-height: 150px;
+                font-family: monospace;
+            }
+            progress {
+                width: 100%;
+                margin-bottom: 10px;
+                display: block;
+            }
+            button.primary {
+                background: #111;
+                color: #fff;
+                padding: 10px 20px;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+                font-size: 1rem;
+                margin-right: 8px;
+                margin-bottom: 8px;
+            }
+            button.primary:hover {
+                background: #444;
+            }
+            button.danger {
+                background: #c0392b;
+                color: #fff;
+                padding: 6px 12px;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+                font-size: 0.9rem;
+            }
+            button.danger:hover {
+                background: #922b21;
+            }
+            button.secondary {
+                background: #eee;
+                color: #222;
+                padding: 10px 20px;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+                cursor: pointer;
+                font-size: 1rem;
+                margin-right: 8px;
+                margin-bottom: 8px;
+            }
+            .status-output {
+                background: #fafafa;
+                padding: 15px;
+                border: 1px solid #e0e0e0;
+                border-radius: 4px;
+                white-space: pre-wrap;
+                margin-top: 10px;
+            }
+            .file-pill {
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                background: #eee;
+                color: #222;
+                border-radius: 20px;
+                padding: 6px 10px 6px 16px;
+                margin: 0 8px 8px 0;
+                font-size: 0.97em;
+                border: 1px solid #ccc;
+            }
+            .file-pill .file-size {
+                color: #777;
+                font-size: 0.85em;
+            }
+            .file-pill .pill-remove {
+                background: #ccc;
+                color: #333;
+                border: none;
+                border-radius: 50%;
+                width: 18px;
+                height: 18px;
+                line-height: 1;
+                cursor: pointer;
+                font-size: 0.85em;
+                padding: 0;
+            }
+            .file-pill .pill-remove:hover {
+                background: #c0392b;
+                color: #fff;
+            }
+            .dropzone {
+                border: 2px dashed #bbb;
+                border-radius: 8px;
+                padding: 28px 20px;
+                text-align: center;
+                color: #666;
+                background: #fafafa;
+                cursor: pointer;
+                transition: background 0.15s, border-color 0.15s;
+                margin-bottom: 14px;
+            }
+            .dropzone:hover {
+                border-color: #888;
+                background: #f4f4f4;
+            }
+            .dropzone.dragover {
+                border-color: #111;
+                background: #eef;
+                color: #111;
+            }
+            .dropzone strong {
+                color: #111;
+            }
+            .upload-hint {
+                background: #f8f9fa;
+                border: 1px solid #e0e0e0;
+                border-radius: 6px;
+                padding: 12px 16px;
+                margin-bottom: 16px;
+                font-size: 0.93rem;
+                line-height: 1.5;
+            }
+            .format-badges {
+                margin: 8px 0 0;
+            }
+            .format-badge {
+                display: inline-block;
+                background: #eef;
+                color: #334;
+                border: 1px solid #ccd;
+                border-radius: 4px;
+                padding: 2px 8px;
+                margin: 0 6px 6px 0;
+                font-size: 0.82rem;
+                font-family: monospace;
+            }
+            .selection-summary {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                flex-wrap: wrap;
+                gap: 8px;
+                margin-bottom: 12px;
+                font-size: 0.92rem;
+                color: #444;
+            }
+            .rules-status {
+                border-radius: 6px;
+                padding: 10px 14px;
+                margin-bottom: 14px;
+                font-size: 0.92rem;
+            }
+            .rules-status.ok {
+                background: #eefaf0;
+                border: 1px solid #bfe6c8;
+                color: #256b39;
+            }
+            .rules-status.warn {
+                background: #fff6e6;
+                border: 1px solid #f0d79a;
+                color: #8a5a00;
+            }
+            .error {
+                color: #c00;
+            }
+            .success {
+                color: #080;
+            }
+            .download-link {
+                display: inline-flex;
+                align-items: center;
+                color: #111;
+                text-decoration: none;
+                font-weight: 500;
+                margin-bottom: 8px;
+                margin-top: 4px;
+            }
+            .download-icon {
+                font-size: 1.2em;
+                margin-left: 8px;
+                margin-bottom: -1px;
+            }
+            .info-email {
+                color: #111;
+                text-decoration: none;
+                font-weight: 500;
+            }
+            .info-email:hover {
+                text-decoration: underline;
+            }
+            footer {
+                text-align: center;
+                padding: 15px;
+                background: #f4f6f8;
+                font-size: 0.9rem;
+                color: #777;
+                border-top: 1px solid #e0e0e0;
+            }
+            footer a {
+                color: #111;
+                text-decoration: none;
+                font-weight: 500;
+            }
+            footer a:hover {
+                text-decoration: underline;
+            }
+            .rules-list {
+                border: 1px solid #e0e0e0;
+                border-radius: 4px;
+                max-height: 280px;
+                overflow-y: auto;
+                margin-bottom: 16px;
+            }
+            .rule-row {
+                display: flex;
+                align-items: center;
+                padding: 8px 12px;
+                border-bottom: 1px solid #eee;
+                font-family: monospace;
+                font-size: 0.95rem;
+            }
+            .rule-row:last-child {
+                border-bottom: none;
+            }
+            .rule-row.comment {
+                color: #888;
+                background: #fafafa;
+            }
+            .rule-row.empty {
+                color: #aaa;
+                font-style: italic;
+            }
+            .rule-text {
+                flex: 1;
+                word-break: break-all;
+            }
+            .rule-edit-input {
+                flex: 1;
+                padding: 6px 8px;
+                font-family: monospace;
+                font-size: 0.95rem;
+                border: 1px solid #999;
+                border-radius: 4px;
+                box-sizing: border-box;
+            }
+            .rule-actions {
+                display: flex;
+                gap: 6px;
+                flex-shrink: 0;
+                margin-left: 8px;
+            }
+            button.edit-btn {
+                background: #444;
+                color: #fff;
+                padding: 6px 12px;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+                font-size: 0.9rem;
+            }
+            button.edit-btn:hover {
+                background: #666;
+            }
+            button.save-btn {
+                background: #111;
+                color: #fff;
+                padding: 6px 12px;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+                font-size: 0.9rem;
+            }
+            button.save-btn:hover {
+                background: #444;
+            }
+            button.cancel-btn {
+                background: #eee;
+                color: #222;
+                padding: 6px 12px;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+                cursor: pointer;
+                font-size: 0.9rem;
+            }
+            .rule-index {
+                color: #999;
+                margin-right: 10px;
+                min-width: 28px;
+            }
+            .help-box {
+                background: #f8f9fa;
+                border: 1px solid #e0e0e0;
+                border-radius: 4px;
+                padding: 12px 16px;
+                margin-top: 16px;
+                font-size: 0.95rem;
+            }
+            .help-box code {
+                background: #eee;
+                padding: 1px 5px;
+                border-radius: 3px;
+            }
+            .info-section {
+                margin-bottom: 28px;
+            }
+            .info-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+                gap: 12px;
+                margin: 12px 0;
+            }
+            .info-card {
+                background: #f8f9fa;
+                border: 1px solid #e0e0e0;
+                border-radius: 6px;
+                padding: 14px 16px;
+            }
+            .info-card h3 {
+                margin: 0 0 8px;
+                font-size: 1rem;
+            }
+            .info-card p {
+                margin: 0;
+                font-size: 0.93rem;
+                line-height: 1.5;
+            }
+            .example-table {
+                width: 100%;
+                border-collapse: collapse;
+                margin: 12px 0;
+                font-size: 0.93rem;
+            }
+            .example-table th,
+            .example-table td {
+                border: 1px solid #e0e0e0;
+                padding: 8px 10px;
+                text-align: left;
+                vertical-align: top;
+            }
+            .example-table th {
+                background: #f0f0f0;
+                font-weight: 600;
+            }
+            .example-table code {
+                background: #eee;
+                padding: 1px 5px;
+                border-radius: 3px;
+                white-space: nowrap;
+            }
+            .tip-box {
+                background: #fffbea;
+                border: 1px solid #f0e6a0;
+                border-radius: 6px;
+                padding: 12px 16px;
+                margin: 12px 0;
+                font-size: 0.93rem;
+            }
+            .steps-list {
+                margin: 8px 0 8px 20px;
+                line-height: 1.7;
+            }
+            .steps-list li {
+                margin-bottom: 6px;
+            }
+            .faq-q {
+                font-weight: 600;
+                margin: 14px 0 4px;
+            }
+            .faq-a {
+                margin: 0 0 8px;
+                color: #444;
+            }
+            .btn-row {
+                display: flex;
+                flex-wrap: wrap;
+                align-items: center;
+                gap: 4px;
+                margin-bottom: 10px;
+            }
+            .add-rule-row {
+                display: flex;
+                gap: 8px;
+                margin-bottom: 16px;
+            }
+            .add-rule-row input {
+                flex: 1;
+                margin-bottom: 0;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <header>
+                <span class="brand-soc">SOC</span>
+                <h1>Sanitization App</h1>
+            </header>
+            <nav>
+                <button data-tab="info" class="active">Information</button>
+                <button data-tab="upload">Upload</button>
+                <button data-tab="rules">Rules</button>
+            </nav>
+            <!-- --- Info Tab --- -->
+            <div id="info" class="tab active">
+                <div class="info-section">
+                    <h2>Overview</h2>
+                    <p>
+                        The Sanitization App removes sensitive text from your
+                        files using regex rules you manage from the browser — no
+                        coding required. It scans file contents and filenames,
+                        replaces every matched character with
+                        <code>X</code>, and lets you download the cleaned
+                        result. Nested archives (zip, rar, 7z, etc.) are
+                        extracted, sanitized, and repackaged automatically.
+                    </p>
+                    <div class="info-grid">
+                        <div class="info-card">
+                            <h3>Max upload size</h3>
+                            <p>{{ max_label }} per file</p>
+                        </div>
+                        <div class="info-card">
+                            <h3>Files per batch</h3>
+                            <p>Up to {{ max_files }} files at once</p>
+                        </div>
+                        <div class="info-card">
+                            <h3>Replacement style</h3>
+                            <p>One <code>X</code> per matched character<br><code>csv</code> → <code>XXX</code></p>
+                        </div>
+                        <div class="info-card">
+                            <h3>Rules storage</h3>
+                            <p>Saved on the server — apply to every upload</p>
+                        </div>
+                        <div class="info-card">
+                            <h3>Supported formats</h3>
+                            <p>Text files (<code>.txt</code>, <code>.log</code>, <code>.csv</code>), Excel (<code>.xlsx</code>, <code>.xls</code>), and archives (<code>.zip</code>, <code>.rar</code>, <code>.7z</code>, <code>.tar</code>, etc.)</p>
+                        </div>
+                        <div class="info-card">
+                            <h3>Nested archives</h3>
+                            <p>Archives inside archives are opened, sanitized, and repackaged automatically</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="info-section">
+                    <h2>How It Works</h2>
+                    <ol class="steps-list">
+                        <li><strong>Set your rules</strong> — Open the Rules tab and add patterns (one per line), or upload a <code>.txt</code> rules file.</li>
+                        <li><strong>Upload files</strong> — Go to Upload, select your file(s), and click Upload.</li>
+                        <li><strong>Wait for processing</strong> — Keep the browser open. A Job ID is shown for each file.</li>
+                        <li><strong>Download results</strong> — When done, click the download link. Stats show how many replacements were made.</li>
+                    </ol>
+                    <div class="tip-box">
+                        <strong>Tip:</strong> If a file has no matches, no download is generated. Add or adjust rules in the Rules tab and upload again.
+                    </div>
+                </div>
+
+                <div class="info-section">
+                    <h2>What Gets Sanitized</h2>
+                    <ul>
+                        <li><strong>File contents</strong> — Text inside .txt, .log, .csv, Excel (.xlsx, .xls), and text files inside archives</li>
+                        <li><strong>Filenames</strong> — Invalid or non-ASCII characters in file and folder names</li>
+                        <li><strong>Nested archives</strong> — Archives inside archives are opened and processed recursively</li>
+                        <li><strong>Non-ASCII characters</strong> — Automatically replaced with <code>X</code> even without a rule</li>
+                    </ul>
+                </div>
+
+                <div class="info-section">
+                    <h2>Supported File Types</h2>
+                    <table class="example-table">
+                        <thead>
+                            <tr><th>Type</th><th>Extensions</th><th>Notes</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>Text files</td><td><code>.txt</code> <code>.log</code> <code>.csv</code></td><td>Content sanitized directly</td></tr>
+                            <tr><td>Spreadsheets</td><td><code>.xlsx</code> <code>.xls</code></td><td>Cell values sanitized, structure preserved</td></tr>
+                            <tr><td>Archives</td><td><code>.zip</code> <code>.rar</code> <code>.7z</code> <code>.tar</code> <code>.tgz</code> <code>.gz</code> <code>.bz2</code> <code>.xz</code> <code>.lz</code> <code>.zst</code></td><td>Extracted, sanitized, repackaged</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="info-section">
+                    <h2>Rules Tab — Quick Guide</h2>
+                    <table class="example-table">
+                        <thead>
+                            <tr><th>Action</th><th>How</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>View rules</td><td>Open Rules tab — each line shows Edit and Delete buttons</td></tr>
+                            <tr><td>Add one rule</td><td>Type a pattern and click <strong>Add Rule</strong></td></tr>
+                            <tr><td>Edit a line</td><td>Click <strong>Edit</strong> on any row, change text, click Save</td></tr>
+                            <tr><td>Delete a line</td><td>Click <strong>Delete</strong> on any row</td></tr>
+                            <tr><td>Edit all at once</td><td>Use the large textarea and click <strong>Save All</strong></td></tr>
+                            <tr><td>Upload rules file</td><td>Choose a <code>.txt</code> file and click <strong>Replace All Rules</strong></td></tr>
+                            <tr><td>Clear everything</td><td>Click <strong>Clear All Rules</strong></td></tr>
+                            <tr><td>Add a comment</td><td>Start the line with <code>#</code> — it is ignored during sanitization</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="info-section">
+                    <h2>Regex Help — Examples</h2>
+                    <p>
+                        Each rule is a regular expression (regex). Matching is
+                        <strong>case-insensitive</strong> — <code>andy</code>
+                        matches <code>Andy</code>, <code>ANDY</code>, etc. Every
+                        matched character becomes an <code>X</code>.
+                    </p>
+                    <table class="example-table">
+                        <thead>
+                            <tr><th>Pattern</th><th>Matches</th><th>Example input</th><th>Result</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td><code>csv</code></td><td>Anywhere in text</td><td><code>file-csv</code></td><td><code>file-XXX</code></td></tr>
+                            <tr><td><code>2023</code></td><td>Inside dates or numbers</td><td><code>10-02-2023</code></td><td><code>10-02-XXXX</code></td></tr>
+                            <tr><td><code>\bandy\b</code></td><td>Whole word only</td><td><code>User Andy logged in</code></td><td><code>User XXXX logged in</code></td></tr>
+                            <tr><td><code>\bt1\b</code></td><td>Exact short token</td><td><code>Tier=t1 Export</code></td><td><code>Tier=XX Export</code></td></tr>
+                            <tr><td><code>abu dhabi</code></td><td>Phrase anywhere</td><td><code>Site=Abu Dhabi</code></td><td><code>Site=XXXXXXXXX</code></td></tr>
+                            <tr><td><code>\b(?:\d{1,3}\.){3}\d{1,3}\b</code></td><td>IP addresses</td><td><code>192.168.1.1</code></td><td><code>XXXXXXXXXXXXX</code></td></tr>
+                            <tr><td><code>\b[\w\.-]+@company\.com\b</code></td><td>Email addresses</td><td><code>user@company.com</code></td><td><code>XXXXXXXXXXXXXXXX</code></td></tr>
+                            <tr><td><code>\bWindows\b</code></td><td>Specific keyword</td><td><code>C:\Windows\System32</code></td><td><code>C:\XXXXXXX\System32</code></td></tr>
+                            <tr><td><code>\d{4}-\d{2}-\d{2}</code></td><td>Dates (YYYY-MM-DD)</td><td><code>2023-07-09</code></td><td><code>XXXXXXXXXX</code></td></tr>
+                            <tr><td><code>-?csv</code></td><td>csv with optional dash</td><td><code>Export=-csv</code></td><td><code>Export=-XXX</code></td></tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Common Regex Symbols</h3>
+                    <table class="example-table">
+                        <thead>
+                            <tr><th>Symbol</th><th>Meaning</th><th>Example</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td><code>.</code></td><td>Any single character</td><td><code>a.c</code> matches <code>abc</code>, <code>aXc</code></td></tr>
+                            <tr><td><code>*</code></td><td>Zero or more of previous</td><td><code>ab*c</code> matches <code>ac</code>, <code>abc</code></td></tr>
+                            <tr><td><code>+</code></td><td>One or more of previous</td><td><code>ab+c</code> matches <code>abc</code> not <code>ac</code></td></tr>
+                            <tr><td><code>\b</code></td><td>Word boundary</td><td><code>\bword\b</code> matches whole word only</td></tr>
+                            <tr><td><code>\d</code></td><td>Any digit (0–9)</td><td><code>\d+</code> matches <code>2023</code></td></tr>
+                            <tr><td><code>\w</code></td><td>Letter, digit, or underscore</td><td><code>\w+</code> matches <code>hello</code></td></tr>
+                            <tr><td><code>[abc]</code></td><td>Any character in brackets</td><td><code>[Tt]1</code> matches <code>T1</code> or <code>t1</code></td></tr>
+                            <tr><td><code>(a|b)</code></td><td>Either a or b</td><td><code>(csv|xml)</code> matches both</td></tr>
+                            <tr><td><code>^</code></td><td>Start of line</td><td><code>^ERROR</code> lines starting with ERROR</td></tr>
+                            <tr><td><code>$</code></td><td>End of line</td><td><code>\.com$</code> ends with .com</td></tr>
+                        </tbody>
+                    </table>
+
+                    <div class="tip-box">
+                        <strong>Beginner tip:</strong> Start with simple plain-text patterns like <code>csv</code>, <code>2023</code>, or a person's name. They match anywhere in the file. Use <code>\bword\b</code> only when you need to match a whole word and not part of another word.
+                    </div>
+                    <div class="tip-box">
+                        <strong>Special characters:</strong> Characters like <code>.</code> <code>*</code> <code>+</code> <code>?</code> <code>[</code> <code>(</code> have special meaning in regex. To match them literally, add a backslash: <code>\.</code> matches a dot, <code>\*</code> matches an asterisk.
+                    </div>
+                </div>
+
+                <div class="info-section">
+                    <h2>Upload Tab — Tips</h2>
+                    <ul>
+                        <li>Do <strong>not</strong> close or refresh the browser while a file is processing</li>
+                        <li>Note the <strong>Job ID</strong> shown after upload — it can be used to check status later</li>
+                        <li>Large files (over 50 MB) are processed line-by-line to save memory</li>
+                        <li>If upload fails with "file too large", the limit is {{ max_label }} per file</li>
+                        <li>Archive processing requires 7-Zip — installed automatically on first start (Ubuntu: via apt; macOS: via Homebrew)</li>
+                    </ul>
+                </div>
+
+                <div class="info-section">
+                    <h2>Frequently Asked Questions</h2>
+                    <p class="faq-q">Why was no download link shown?</p>
+                    <p class="faq-a">No rule matched anything in the file. Add or adjust rules and upload again.</p>
+                    <p class="faq-q">Why does <code>andy</code> become <code>XXXX</code> and not <code>XXX</code>?</p>
+                    <p class="faq-a">Each matched character is replaced with one <code>X</code>. The word "andy" has 4 characters, so it becomes 4 Xs.</p>
+                    <p class="faq-q">Can I use plain words without regex knowledge?</p>
+                    <p class="faq-a">Yes. Typing a plain word like <code>csv</code> or <code>2023</code> works as a pattern and matches that text anywhere in the file.</p>
+                    <p class="faq-q">Do rules apply to all future uploads?</p>
+                    <p class="faq-a">Yes. Rules are saved permanently on the server until you change or clear them.</p>
+                    <p class="faq-q">What happens to comments in the rules file?</p>
+                    <p class="faq-a">Lines starting with <code>#</code> are comments and are ignored. They are useful for notes and documentation.</p>
+                    <p class="faq-q">I refreshed the page — did I lose my tab?</p>
+                    <p class="faq-a">The app remembers your last tab in the URL (e.g. <code>#rules</code>). Bookmark or note the Job ID if processing was in progress.</p>
+                </div>
+
+                <div class="info-section">
+                    <h2>Support</h2>
+                    <p>Andy</p>
+                </div>
+            </div>
+            <!-- --- Upload Tab --- -->
+            <div id="upload" class="tab">
+                <h2>Upload &amp; Sanitize Files</h2>
+
+                <div class="upload-hint">
+                    Select or drag your files below, then click
+                    <strong>Upload</strong>. Each file is scanned against your
+                    saved rules, and every match is replaced with
+                    <code>X</code>. When finished, a download link appears with
+                    per-file statistics.
+                    <div class="format-badges">
+                        <span class="format-badge">.txt</span>
+                        <span class="format-badge">.log</span>
+                        <span class="format-badge">.csv</span>
+                        <span class="format-badge">.xlsx</span>
+                        <span class="format-badge">.xls</span>
+                        <span class="format-badge">.zip</span>
+                        <span class="format-badge">.rar</span>
+                        <span class="format-badge">.7z</span>
+                        <span class="format-badge">.tar</span>
+                        <span class="format-badge">.tgz</span>
+                        <span class="format-badge">.gz</span>
+                        <span class="format-badge">.bz2</span>
+                        <span class="format-badge">.xz</span>
+                        <span class="format-badge">.lz</span>
+                        <span class="format-badge">.zst</span>
+                    </div>
+                </div>
+
+                <div id="rulesStatus" class="rules-status warn">
+                    Checking active rules…
+                </div>
+
+                <div id="dropzone" class="dropzone">
+                    <strong>Click to choose files</strong> or drag &amp; drop
+                    them here<br />
+                    <span style="font-size: 0.88rem"
+                        >Up to {{ max_files }} files · max
+                        {{ max_label }} each</span
+                    >
+                </div>
+                <input
+                    type="file"
+                    id="fileInput"
+                    name="file"
+                    multiple
+                    accept=".txt,.log,.csv,.xlsx,.xls,.zip,.rar,.7z,.tar,.tgz,.gz,.bz2,.xz,.lz,.zst"
+                    style="display: none"
+                />
+
+                <div id="fileList"></div>
+
+                <div
+                    id="selectionSummary"
+                    class="selection-summary"
+                    style="display: none"
+                >
+                    <span id="selectionInfo"></span>
+                    <button class="secondary" id="clearSelectionBtn">
+                        Clear selection
+                    </button>
+                </div>
+
+                <progress
+                    id="uploadProgress"
+                    value="0"
+                    max="100"
+                    title="Uploading 0%"
+                    style="display: none"
+                ></progress>
+                <button class="primary" id="uploadBtn">Upload</button>
+                <div id="uploadResult" aria-live="polite"></div>
+            </div>
+            <!-- --- Rules Tab --- -->
+            <div id="rules" class="tab">
+                <h2>Active Rules</h2>
+                <p>
+                    Rules are saved to the server and used for all uploads. One
+                    regex pattern per line. Lines starting with
+                    <code>#</code> are comments.
+                </p>
+                <div id="rulesList" class="rules-list">
+                    <div class="rule-row empty">Loading rules…</div>
+                </div>
+
+                <h3>Add Rule</h3>
+                <div class="add-rule-row">
+                    <input
+                        type="text"
+                        id="addRuleInput"
+                        placeholder="Enter a regex pattern, e.g. csv or 2023"
+                    />
+                    <button class="primary" id="addRuleBtn">Add Rule</button>
+                </div>
+
+                <h3>Edit All Rules</h3>
+                <textarea
+                    id="editAllTxt"
+                    placeholder="One rule per line…"
+                ></textarea>
+                <div class="btn-row">
+                    <button class="primary" id="saveAllBtn">Save All</button>
+                </div>
+
+                <h3>Upload Rules File</h3>
+                <p>Upload a <code>.txt</code> file to replace all current rules.</p>
+                <input type="file" id="rulesFileInput" accept=".txt" />
+                <div class="btn-row">
+                    <button class="primary" id="uploadRulesBtn">
+                        Replace All Rules
+                    </button>
+                    <button class="secondary" id="clearRulesBtn">
+                        Clear All Rules
+                    </button>
+                </div>
+
+                <div id="rulesResult" class="status-output" aria-live="polite"></div>
+
+                <div class="help-box">
+                    <strong>Regex Help</strong>
+                    <p style="margin: 8px 0">
+                        Each rule is a regex pattern. Matching is
+                        <strong>case-insensitive</strong>. Every matched
+                        character becomes <code>X</code>.
+                        <a href="#info" onclick="switchTab('info'); return false;">See full guide in Information tab →</a>
+                    </p>
+                    <table class="example-table">
+                        <thead>
+                            <tr><th>Pattern</th><th>Example</th><th>Result</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td><code>csv</code></td><td><code>file-csv</code></td><td><code>file-XXX</code></td></tr>
+                            <tr><td><code>2023</code></td><td><code>10-02-2023</code></td><td><code>10-02-XXXX</code></td></tr>
+                            <tr><td><code>\bandy\b</code></td><td><code>User Andy logged in</code></td><td><code>User XXXX logged in</code></td></tr>
+                            <tr><td><code>\bt1\b</code></td><td><code>Tier=t1 Export</code></td><td><code>Tier=XX Export</code></td></tr>
+                            <tr><td><code>-?csv</code></td><td><code>Export=-csv</code></td><td><code>Export=-XXX</code></td></tr>
+                            <tr><td><code>\b(?:\d{1,3}\.){3}\d{1,3}\b</code></td><td><code>192.168.1.1</code></td><td><code>XXXXXXXXXXXXX</code></td></tr>
+                        </tbody>
+                    </table>
+                    <p style="margin: 8px 0 4px"><strong>Quick symbols:</strong></p>
+                    <ul style="margin-top: 4px">
+                        <li><code>\bword\b</code> — whole word only (not part of another word)</li>
+                        <li><code>\d</code> — any digit; <code>\d+</code> — one or more digits</li>
+                        <li><code>.</code> — any character; use <code>\.</code> to match a literal dot</li>
+                        <li><code>(a|b)</code> — match either a or b, e.g. <code>(csv|xml)</code></li>
+                        <li><code># comment</code> — lines starting with <code>#</code> are ignored</li>
+                    </ul>
+                </div>
+            </div>
+            <footer>
+                © 2026 Andy
+            </footer>
+        </div>
+        <script>
+            let currentRules = [];
+            const VALID_TABS = ["info", "upload", "rules"];
+
+            function switchTab(tabId, updateHash = true) {
+                if (!VALID_TABS.includes(tabId)) tabId = "info";
+                document
+                    .querySelectorAll("nav button, .tab")
+                    .forEach((el) => el.classList.remove("active"));
+                const btn = document.querySelector(`nav button[data-tab="${tabId}"]`);
+                const panel = document.getElementById(tabId);
+                if (btn) btn.classList.add("active");
+                if (panel) panel.classList.add("active");
+                if (tabId === "rules") loadRules();
+                if (tabId === "upload" && typeof refreshRulesStatus === "function")
+                    refreshRulesStatus();
+                if (updateHash && location.hash !== `#${tabId}`) {
+                    history.replaceState(null, "", `#${tabId}`);
+                }
+            }
+
+            // --- Tab Navigation ---
+            document.querySelector("nav").addEventListener("click", (e) => {
+                if (e.target.tagName !== "BUTTON") return;
+                switchTab(e.target.dataset.tab);
+            });
+
+            window.addEventListener("hashchange", () => {
+                const tabId = location.hash.replace("#", "") || "info";
+                switchTab(tabId, false);
+            });
+
+            const initialTab = location.hash.replace("#", "") || "info";
+            switchTab(initialTab, false);
+
+            function isCommentLine(line) {
+                return line.trim().startsWith("#");
+            }
+
+            function isActiveRule(line) {
+                const clean = line.split("#")[0].trim();
+                return clean.length > 0;
+            }
+
+            function showRulesMessage(msg, isError) {
+                const el = document.getElementById("rulesResult");
+                el.innerHTML = isError
+                    ? `<span class="error">${msg}</span>`
+                    : `<span class="success">${msg}</span>`;
+            }
+
+            function renderRulesList(lines) {
+                const container = document.getElementById("rulesList");
+                container.innerHTML = "";
+                if (!lines.length) {
+                    container.innerHTML =
+                        '<div class="rule-row empty">No rules defined. Add a rule or upload a rules file.</div>';
+                    return;
+                }
+                lines.forEach((line, i) => {
+                    const row = document.createElement("div");
+                    row.className = "rule-row";
+                    if (isCommentLine(line)) row.classList.add("comment");
+                    else if (!isActiveRule(line)) row.classList.add("empty");
+
+                    const idx = document.createElement("span");
+                    idx.className = "rule-index";
+                    idx.textContent = i + 1;
+
+                    const text = document.createElement("span");
+                    text.className = "rule-text";
+                    text.textContent = line || "(empty line)";
+
+                    const actions = document.createElement("div");
+                    actions.className = "rule-actions";
+
+                    const editBtn = document.createElement("button");
+                    editBtn.className = "edit-btn";
+                    editBtn.textContent = "Edit";
+                    editBtn.addEventListener("click", () =>
+                        startEditLine(i, row, text, actions),
+                    );
+
+                    const delBtn = document.createElement("button");
+                    delBtn.className = "danger";
+                    delBtn.textContent = "Delete";
+                    delBtn.addEventListener("click", () => removeRule(i));
+
+                    actions.appendChild(editBtn);
+                    actions.appendChild(delBtn);
+
+                    row.appendChild(idx);
+                    row.appendChild(text);
+                    row.appendChild(actions);
+                    container.appendChild(row);
+                });
+            }
+
+            function startEditLine(index, row, textEl, actionsEl) {
+                const original = currentRules[index];
+                const input = document.createElement("input");
+                input.type = "text";
+                input.className = "rule-edit-input";
+                input.value = original;
+
+                actionsEl.innerHTML = "";
+
+                const saveBtn = document.createElement("button");
+                saveBtn.className = "save-btn";
+                saveBtn.textContent = "Save";
+                saveBtn.addEventListener("click", async () => {
+                    await editRule(index, input.value);
+                });
+
+                const cancelBtn = document.createElement("button");
+                cancelBtn.className = "cancel-btn";
+                cancelBtn.textContent = "Cancel";
+                cancelBtn.addEventListener("click", () => loadRules());
+
+                actionsEl.appendChild(saveBtn);
+                actionsEl.appendChild(cancelBtn);
+
+                textEl.replaceWith(input);
+                input.focus();
+                input.select();
+
+                input.addEventListener("keydown", (e) => {
+                    if (e.key === "Enter") saveBtn.click();
+                    if (e.key === "Escape") cancelBtn.click();
+                });
+            }
+
+            async function editRule(index, line) {
+                const res = await fetch("/rules/edit", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ index, line }),
+                }).then((r) => r.json());
+                if (res.error) {
+                    showRulesMessage(res.error, true);
+                    return;
+                }
+                showRulesMessage("Line updated.", false);
+                loadRules();
+            }
+
+            async function loadRules() {
+                try {
+                    const j = await fetch("/bad_words").then((r) => {
+                        if (!r.ok) throw new Error(r.statusText);
+                        return r.json();
+                    });
+                    currentRules = j.lines || [];
+                    renderRulesList(currentRules);
+                    document.getElementById("editAllTxt").value =
+                        currentRules.join("\n");
+                } catch {
+                    document.getElementById("rulesList").innerHTML =
+                        '<div class="rule-row empty">Could not load rules.</div>';
+                }
+            }
+            loadRules();
+
+            async function removeRule(index) {
+                if (!confirm("Delete this line?")) return;
+                const res = await fetch("/rules/remove", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ index }),
+                }).then((r) => r.json());
+                if (res.error) {
+                    showRulesMessage(res.error, true);
+                    return;
+                }
+                showRulesMessage("Rule removed.", false);
+                loadRules();
+            }
+
+            document.getElementById("addRuleBtn").addEventListener("click", async () => {
+                const rule = document.getElementById("addRuleInput").value.trim();
+                if (!rule) return alert("Enter a rule");
+                const res = await fetch("/rules/add", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ rule }),
+                }).then((r) => r.json());
+                if (res.error) {
+                    showRulesMessage(res.error, true);
+                    return;
+                }
+                document.getElementById("addRuleInput").value = "";
+                showRulesMessage("Rule added.", false);
+                loadRules();
+            });
+
+            document.getElementById("saveAllBtn").addEventListener("click", async () => {
+                const lines = document
+                    .getElementById("editAllTxt")
+                    .value.split("\n");
+                const res = await fetch("/rules/save", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ lines }),
+                }).then((r) => r.json());
+                if (res.error) {
+                    showRulesMessage(res.error, true);
+                    return;
+                }
+                showRulesMessage(`Rules saved (${res.count} active patterns).`, false);
+                loadRules();
+            });
+
+            document.getElementById("uploadRulesBtn").addEventListener("click", async () => {
+                const f = document.getElementById("rulesFileInput").files[0];
+                if (!f) return alert("Select a .txt rules file");
+                if (
+                    !confirm(
+                        "This will replace ALL current rules with the uploaded file. Continue?"
+                    )
+                )
+                    return;
+                const fd = new FormData();
+                fd.append("file", f);
+                const res = await fetch("/rules/upload", {
+                    method: "POST",
+                    body: fd,
+                }).then((r) => r.json());
+                if (res.error) {
+                    showRulesMessage(res.error, true);
+                    return;
+                }
+                showRulesMessage(
+                    `Rules replaced (${res.count} active patterns).`,
+                    false
+                );
+                document.getElementById("rulesFileInput").value = "";
+                loadRules();
+            });
+
+            document.getElementById("clearRulesBtn").addEventListener("click", async () => {
+                if (
+                    !confirm(
+                        "Clear ALL rules? This cannot be undone without re-uploading or re-adding rules."
+                    )
+                )
+                    return;
+                const res = await fetch("/rules/clear", {
+                    method: "POST",
+                }).then((r) => r.json());
+                if (res.error) {
+                    showRulesMessage(res.error, true);
+                    return;
+                }
+                showRulesMessage("All rules cleared.", false);
+                loadRules();
+            });
+
+            // --- File Selection State ---
+            const MAX_FILES = {{ max_files }};
+            const MAX_BYTES = {{ max_mb }} * 1024 * 1024;
+            const fileInput = document.getElementById("fileInput");
+            const dropzone = document.getElementById("dropzone");
+            let selectedFiles = [];
+
+            function formatBytes(bytes) {
+                if (bytes < 1024) return bytes + " B";
+                const units = ["KB", "MB", "GB"];
+                let n = bytes / 1024,
+                    i = 0;
+                while (n >= 1024 && i < units.length - 1) {
+                    n /= 1024;
+                    i++;
+                }
+                return n.toFixed(n < 10 ? 1 : 0) + " " + units[i];
+            }
+
+            function fileKey(f) {
+                return f.name + "|" + f.size + "|" + f.lastModified;
+            }
+
+            function addFiles(fileArr) {
+                for (const f of fileArr) {
+                    if (selectedFiles.length >= MAX_FILES) {
+                        alert(`Maximum ${MAX_FILES} files can be selected.`);
+                        break;
+                    }
+                    if (selectedFiles.some((s) => fileKey(s) === fileKey(f)))
+                        continue;
+                    selectedFiles.push(f);
+                }
+                renderSelection();
+            }
+
+            function removeFile(key) {
+                selectedFiles = selectedFiles.filter(
+                    (f) => fileKey(f) !== key,
+                );
+                renderSelection();
+            }
+
+            function renderSelection() {
+                const list = document.getElementById("fileList");
+                const summary = document.getElementById("selectionSummary");
+                const info = document.getElementById("selectionInfo");
+                list.innerHTML = "";
+
+                if (!selectedFiles.length) {
+                    summary.style.display = "none";
+                    return;
+                }
+
+                let totalBytes = 0;
+                let oversized = 0;
+                selectedFiles.forEach((f) => {
+                    totalBytes += f.size;
+                    const tooBig = f.size > MAX_BYTES;
+                    if (tooBig) oversized++;
+
+                    const pill = document.createElement("span");
+                    pill.className = "file-pill";
+                    if (tooBig) pill.style.borderColor = "#c0392b";
+
+                    const name = document.createElement("span");
+                    name.textContent = f.name;
+
+                    const size = document.createElement("span");
+                    size.className = "file-size";
+                    size.textContent = formatBytes(f.size);
+                    if (tooBig) {
+                        size.textContent += " · too large";
+                        size.style.color = "#c0392b";
+                    }
+
+                    const rm = document.createElement("button");
+                    rm.className = "pill-remove";
+                    rm.type = "button";
+                    rm.textContent = "×";
+                    rm.title = "Remove";
+                    rm.addEventListener("click", () => removeFile(fileKey(f)));
+
+                    pill.appendChild(name);
+                    pill.appendChild(size);
+                    pill.appendChild(rm);
+                    list.appendChild(pill);
+                });
+
+                summary.style.display = "flex";
+                let msg = `${selectedFiles.length} file${
+                    selectedFiles.length > 1 ? "s" : ""
+                } selected · ${formatBytes(totalBytes)} total`;
+                if (oversized > 0) {
+                    msg += ` · ${oversized} over the size limit`;
+                }
+                info.textContent = msg;
+            }
+
+            // --- Dropzone / File Input ---
+            dropzone.addEventListener("click", () => fileInput.click());
+            fileInput.addEventListener("change", () => {
+                addFiles(Array.from(fileInput.files));
+                fileInput.value = "";
+            });
+            ["dragenter", "dragover"].forEach((ev) =>
+                dropzone.addEventListener(ev, (e) => {
+                    e.preventDefault();
+                    dropzone.classList.add("dragover");
+                }),
+            );
+            ["dragleave", "drop"].forEach((ev) =>
+                dropzone.addEventListener(ev, (e) => {
+                    e.preventDefault();
+                    dropzone.classList.remove("dragover");
+                }),
+            );
+            dropzone.addEventListener("drop", (e) => {
+                if (e.dataTransfer && e.dataTransfer.files.length) {
+                    addFiles(Array.from(e.dataTransfer.files));
+                }
+            });
+            document
+                .getElementById("clearSelectionBtn")
+                .addEventListener("click", () => {
+                    selectedFiles = [];
+                    renderSelection();
+                });
+
+            // --- Rules Status Indicator ---
+            async function refreshRulesStatus() {
+                const el = document.getElementById("rulesStatus");
+                if (!el) return;
+                try {
+                    const j = await fetch("/bad_words").then((r) => r.json());
+                    const active = (j.lines || []).filter(
+                        (l) => l.split("#")[0].trim().length > 0,
+                    ).length;
+                    if (active > 0) {
+                        el.className = "rules-status ok";
+                        el.innerHTML = `<strong>${active}</strong> active rule${
+                            active > 1 ? "s" : ""
+                        } will be applied. <a href="#rules" onclick="switchTab('rules'); return false;">Manage rules →</a>`;
+                    } else {
+                        el.className = "rules-status warn";
+                        el.innerHTML =
+                            'No active rules yet — files will not be sanitized. <a href="#rules" onclick="switchTab(\'rules\'); return false;">Add rules first →</a>';
+                    }
+                } catch {
+                    el.className = "rules-status warn";
+                    el.textContent = "Could not load rules status.";
+                }
+            }
+            refreshRulesStatus();
+
+            // --- Upload Handler ---
+            document
+                .getElementById("uploadBtn")
+                .addEventListener("click", async () => {
+                    const files = selectedFiles.slice();
+                    if (!files.length) return alert("Select files first.");
+                    if (files.length > MAX_FILES)
+                        return alert(`Max ${MAX_FILES} files.`);
+                    const oversized = files.filter((f) => f.size > MAX_BYTES);
+                    if (oversized.length) {
+                        return alert(
+                            `${oversized.length} file(s) exceed the {{ max_mb }} MB limit. Remove them before uploading.`,
+                        );
+                    }
+                    document.getElementById("uploadResult").innerHTML = "";
+                    const prog = document.getElementById("uploadProgress");
+                    prog.style.display = "block";
+                    for (const f of files) {
+                        const out = document.createElement("div");
+                        out.className = "status-output";
+                        out.innerHTML = `Uploading ${f.name}…<br>`;
+                        document
+                            .getElementById("uploadResult")
+                            .appendChild(out);
+
+                        prog.value = 0;
+                        prog.title = "Uploading 0%";
+                        await new Promise((resolve) => {
+                            const xhr = new XMLHttpRequest();
+                            xhr.open("POST", "/upload");
+                            xhr.upload.onprogress = (e) => {
+                                if (e.lengthComputable) {
+                                    const pct = Math.round(
+                                        (e.loaded / e.total) * 100,
+                                    );
+                                    prog.value = pct;
+                                    prog.title = `Uploading ${pct}%`;
+                                }
+                            };
+                            xhr.onload = () => {
+                                try {
+                                    const res = JSON.parse(xhr.responseText);
+                                    if (res.error) {
+                                        out.innerHTML += `<span class="error">Error: ${res.error}</span><br>`;
+                                    } else {
+                                        out.innerHTML += `Job ID: ${res.job_id}<br>`;
+                                        poll(res.job_id, f.name, out);
+                                    }
+                                } catch {
+                                    out.innerHTML += `<span class="error">Upload failed (server error).</span><br>`;
+                                }
+                                resolve();
+                            };
+                            xhr.onerror = () => {
+                                out.innerHTML += `<span class="error">Network error while uploading.</span><br>`;
+                                resolve();
+                            };
+                            const fd = new FormData();
+                            fd.append("file", f);
+                            xhr.send(fd);
+                        });
+                    }
+                    prog.style.display = "none";
+                    selectedFiles = [];
+                    renderSelection();
+                });
+
+            function poll(job_id, filename, out) {
+                const iv = setInterval(async () => {
+                    const d = await fetch(`/status/${job_id}`).then((r) =>
+                        r.json()
+                    );
+                    if (d.status !== "Done") {
+                        out.innerHTML = `Processing <b>${filename}</b>...<br>Job ID: ${job_id}<br>Status: ${d.status}<br>`;
+                    }
+                    if (d.status === "Done") {
+                        if (d.download && d.total_replacements > 0) {
+                            const link = window.location.origin + d.download;
+                            out.innerHTML = `<a href="${link}" target="_blank" class="download-link">Download sanitized result <span class="download-icon">✔</span></a><br>`;
+                        } else {
+                            out.innerHTML =
+                                "<b>No replacements found. No file generated.</b><br>";
+                        }
+                        out.innerHTML += "<strong>Per-file stats:</strong><br>";
+                        (d.file_stats || []).forEach((s) => {
+                            out.innerHTML += `• ${s.file}: ${s.replacements} replacements, ${s.duration.toFixed(2)}s<br>`;
+                        });
+                        out.innerHTML += `<br>Job ID: ${job_id}`;
+                        clearInterval(iv);
+                    }
+                }, 2000);
+            }
+        </script>
+    </body>
+</html>
