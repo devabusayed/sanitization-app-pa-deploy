@@ -3,7 +3,8 @@
 Sanitization App v1.0
 """
 import os, re, uuid, shutil, tempfile, logging, subprocess, argparse, sys, io
-import platform, stat, urllib.request, tarfile
+import platform, stat, urllib.request, tarfile, zipfile
+
 from datetime import datetime, timedelta
 from threading import Semaphore, Thread, Lock
 from pathlib import Path
@@ -727,16 +728,38 @@ def safe_rename_in_dir(path, used_names):
 
 
 def extract_archive(upload_path, tempdir):
-    """Extract an archive to a temporary directory using 7z."""
+    """Extract an archive to a temporary directory using 7z, with stdlib fallback."""
+    upload_path = Path(upload_path)
+    tempdir = Path(tempdir)
+    tempdir.mkdir(parents=True, exist_ok=True)
+
     exe = get_7z_exe()
-    if not exe:
-        logging.error("7-Zip is required for archive extraction but is not installed.")
+    if exe:
+        subprocess.run(
+            [str(exe), 'x', str(upload_path), f'-o{tempdir}', '-y'],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
         return
-    subprocess.run(
-        [str(exe), 'x', str(upload_path), f'-o{tempdir}', '-y'],
-        stdout=subprocess.DEVNULL,
-        stderr=subprocess.DEVNULL,
-    )
+
+    # Fallback for hosts without 7-Zip (e.g. PythonAnywhere free outbound limits)
+    lower = upload_path.name.lower()
+    try:
+        if lower.endswith('.zip'):
+            with zipfile.ZipFile(upload_path, 'r') as zf:
+                zf.extractall(tempdir)
+            return
+        if lower.endswith(('.tar', '.tar.gz', '.tgz', '.tar.bz2', '.tbz2', '.tar.xz')):
+            with tarfile.open(upload_path, 'r:*') as tf:
+                tf.extractall(tempdir)
+            return
+        shutil.unpack_archive(str(upload_path), str(tempdir))
+        return
+    except Exception as e:
+        logging.error(
+            "Archive extraction failed (no 7-Zip and stdlib fallback failed) for %s: %s",
+            upload_path, e,
+        )
 
 
 def sanitize_tree(root):
